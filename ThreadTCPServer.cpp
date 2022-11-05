@@ -1,9 +1,9 @@
-#include "..\Common.h"
+#include "Common.h"
 
 #define SERVERPORT 9000
 #define BUFSIZE    512
 
-// Å¬¶óÀÌ¾ğÆ®¿Í µ¥ÀÌÅÍ Åë½Å
+// í´ë¼ì´ì–¸íŠ¸ì™€ ë°ì´í„° í†µì‹ 
 DWORD WINAPI ProcessClient(LPVOID arg)
 {
 	int retval;
@@ -13,13 +13,13 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	int addrlen;
 	char buf[BUFSIZE + 1];
 
-	// Å¬¶óÀÌ¾ğÆ® Á¤º¸ ¾ò±â
+	// í´ë¼ì´ì–¸íŠ¸ ì •ë³´ ì–»ê¸°
 	addrlen = sizeof(clientaddr);
 	getpeername(client_sock, (struct sockaddr *)&clientaddr, &addrlen);
 	inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
 
 	while (1) {
-		// µ¥ÀÌÅÍ ¹Ş±â
+		// ë°ì´í„° ë°›ê¸°
 		retval = recv(client_sock, buf, BUFSIZE, 0);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");
@@ -28,11 +28,11 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		else if (retval == 0)
 			break;
 
-		// ¹ŞÀº µ¥ÀÌÅÍ Ãâ·Â
+		// ë°›ì€ ë°ì´í„° ì¶œë ¥
 		buf[retval] = '\0';
 		printf("[TCP/%s:%d] %s\n", addr, ntohs(clientaddr.sin_port), buf);
 
-		// µ¥ÀÌÅÍ º¸³»±â
+		// ë°ì´í„° ë³´ë‚´ê¸°
 		retval = send(client_sock, buf, retval, 0);
 		if (retval == SOCKET_ERROR) {
 			err_display("send()");
@@ -40,9 +40,9 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		}
 	}
 
-	// ¼ÒÄÏ ´İ±â
+	// ì†Œì¼“ ë‹«ê¸°
 	closesocket(client_sock);
-	printf("[TCP ¼­¹ö] Å¬¶óÀÌ¾ğÆ® Á¾·á: IP ÁÖ¼Ò=%s, Æ÷Æ® ¹øÈ£=%d\n",
+	printf("[TCP ì„œë²„] í´ë¼ì´ì–¸íŠ¸ ì¢…ë£Œ: IP ì£¼ì†Œ=%s, í¬íŠ¸ ë²ˆí˜¸=%d\n",
 		addr, ntohs(clientaddr.sin_port));
 	return 0;
 }
@@ -51,12 +51,12 @@ int main(int argc, char *argv[])
 {
 	int retval;
 
-	// À©¼Ó ÃÊ±âÈ­
+	// ìœˆì† ì´ˆê¸°í™”
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 		return 1;
 
-	// ¼ÒÄÏ »ı¼º
+	// ì†Œì¼“ ìƒì„±
 	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (listen_sock == INVALID_SOCKET) err_quit("socket()");
 
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 	retval = listen(listen_sock, SOMAXCONN);
 	if (retval == SOCKET_ERROR) err_quit("listen()");
 
-	// µ¥ÀÌÅÍ Åë½Å¿¡ »ç¿ëÇÒ º¯¼ö
+	// ë°ì´í„° í†µì‹ ì— ì‚¬ìš©í•  ë³€ìˆ˜
 	SOCKET client_sock;
 	struct sockaddr_in clientaddr;
 	int addrlen;
@@ -88,23 +88,23 @@ int main(int argc, char *argv[])
 			break;
 		}
 
-		// Á¢¼ÓÇÑ Å¬¶óÀÌ¾ğÆ® Á¤º¸ Ãâ·Â
+		// ì ‘ì†í•œ í´ë¼ì´ì–¸íŠ¸ ì •ë³´ ì¶œë ¥
 		char addr[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
-		printf("\n[TCP ¼­¹ö] Å¬¶óÀÌ¾ğÆ® Á¢¼Ó: IP ÁÖ¼Ò=%s, Æ÷Æ® ¹øÈ£=%d\n",
+		printf("\n[TCP ì„œë²„] í´ë¼ì´ì–¸íŠ¸ ì ‘ì†: IP ì£¼ì†Œ=%s, í¬íŠ¸ ë²ˆí˜¸=%d\n",
 			addr, ntohs(clientaddr.sin_port));
 
-		// ½º·¹µå »ı¼º
+		// ìŠ¤ë ˆë“œ ìƒì„±
 		hThread = CreateThread(NULL, 0, ProcessClient,
 			(LPVOID)client_sock, 0, NULL);
 		if (hThread == NULL) { closesocket(client_sock); }
 		else { CloseHandle(hThread); }
 	}
 
-	// ¼ÒÄÏ ´İ±â
+	// ì†Œì¼“ ë‹«ê¸°
 	closesocket(listen_sock);
 
-	// À©¼Ó Á¾·á
+	// ìœˆì† ì¢…ë£Œ
 	WSACleanup();
 	return 0;
 }

@@ -1,7 +1,12 @@
-#include "..\Common.h"
+#include "Common.h"
 
 #define SERVERPORT 9000
 #define BUFSIZE    512
+#define MAXCLIENTS 20		// 일단 20명
+
+// 접속한 클라이언트 목록
+SOCKET sockets[MAXCLIENTS];
+int num = 0;	// 항상 서버에 접속한 클라이언트 숫자-1
 
 // 클라이언트와 데이터 통신
 DWORD WINAPI ProcessClient(LPVOID arg)
@@ -25,25 +30,26 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			err_display("recv()");
 			break;
 		}
-		else if (retval == 0)
-			break;
+		else if (retval == 0)	break;
 
-		// 받은 데이터 출력
+		// 받은 데이터를 서버에 출력
 		buf[retval] = '\0';
 		printf("[TCP/%s:%d] %s\n", addr, ntohs(clientaddr.sin_port), buf);
 
-		// 데이터 보내기
-		retval = send(client_sock, buf, retval, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			break;
+		// 받은 데이터를 해당 클라이언트에게 전송
+		for (int i = 0; i < num; i++) {
+			//printf("%d", i);
+			retval = send(sockets[i], buf, retval, 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
+			}
 		}
 	}
 
 	// 소켓 닫기
-	closesocket(client_sock);
-	printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n",
-		addr, ntohs(clientaddr.sin_port));
+	closesocket(client_sock); num--;
+	printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d, 남은 사람=%d\n", addr, ntohs(clientaddr.sin_port),num);
 	return 0;
 }
 
@@ -83,6 +89,7 @@ int main(int argc, char *argv[])
 		// accept()
 		addrlen = sizeof(clientaddr);
 		client_sock = accept(listen_sock, (struct sockaddr *)&clientaddr, &addrlen);
+		sockets[num++] = client_sock;	// 현재 client_sock을 sockets 배열에 저장
 		if (client_sock == INVALID_SOCKET) {
 			err_display("accept()");
 			break;
@@ -91,13 +98,11 @@ int main(int argc, char *argv[])
 		// 접속한 클라이언트 정보 출력
 		char addr[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
-		printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n",
-			addr, ntohs(clientaddr.sin_port));
+		printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d, 접속자 수=%d\n", addr, ntohs(clientaddr.sin_port), num);
 
 		// 스레드 생성
-		hThread = CreateThread(NULL, 0, ProcessClient,
-			(LPVOID)client_sock, 0, NULL);
-		if (hThread == NULL) { closesocket(client_sock); }
+		hThread = CreateThread(NULL, 0, ProcessClient, (LPVOID)client_sock, 0, NULL);
+		if (hThread == NULL) { closesocket(client_sock); num--; }
 		else { CloseHandle(hThread); }
 	}
 

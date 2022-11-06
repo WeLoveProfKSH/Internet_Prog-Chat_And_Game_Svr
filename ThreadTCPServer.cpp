@@ -1,4 +1,5 @@
 #include "Common.h"
+#include <conio.h>	// 추후 키보드 입력 감지를 위한 kbhit()함수 사용을 위한 Header
 
 #define SERVERPORT 9000
 #define BUFSIZE    512
@@ -6,7 +7,7 @@
 
 // 접속한 클라이언트 목록
 SOCKET sockets[MAXCLIENTS];
-int num = 0;	// 항상 서버에 접속한 클라이언트 숫자-1
+int num = 0;	// 항상 서버에 접속한 클라이언트 숫자
 
 // 클라이언트와 데이터 통신
 DWORD WINAPI ProcessClient(LPVOID arg)

@@ -1,15 +1,15 @@
 #include "Common.h"
-#include <conio.h>	// ÃßÈÄ Å°º¸µå ÀÔ·Â °¨Áö¸¦ À§ÇÑ kbhit()ÇÔ¼ö »ç¿ëÀ» À§ÇÑ Header
+#include <conio.h>	// ì¶”í›„ í‚¤ë³´ë“œ ì…ë ¥ ê°ì§€ë¥¼ ìœ„í•œ kbhit()í•¨ìˆ˜ ì‚¬ìš©ì„ ìœ„í•œ Header
 
 #define SERVERPORT 9000
 #define BUFSIZE    512
-#define MAXCLIENTS 20		// ÀÏ´Ü 20¸í
+#define MAXCLIENTS 20		// ì¼ë‹¨ 20ëª…
 
-// Á¢¼ÓÇÑ Å¬¶óÀÌ¾ğÆ® ¸ñ·Ï
+// ì ‘ì†í•œ í´ë¼ì´ì–¸íŠ¸ ëª©ë¡
 SOCKET sockets[MAXCLIENTS];
-int num = 0;	// Ç×»ó ¼­¹ö¿¡ Á¢¼ÓÇÑ Å¬¶óÀÌ¾ğÆ® ¼ıÀÚ
+int num = 0;	// í•­ìƒ ì„œë²„ì— ì ‘ì†í•œ í´ë¼ì´ì–¸íŠ¸ ìˆ«ì
 
-// Å¬¶óÀÌ¾ğÆ®¿Í µ¥ÀÌÅÍ Åë½Å
+// í´ë¼ì´ì–¸íŠ¸ì™€ ë°ì´í„° í†µì‹ 
 DWORD WINAPI ProcessClient(LPVOID arg)
 {
 	int retval;
@@ -19,13 +19,13 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	int addrlen;
 	char buf[BUFSIZE + 1];
 
-	// Å¬¶óÀÌ¾ğÆ® Á¤º¸ ¾ò±â
+	// í´ë¼ì´ì–¸íŠ¸ ì •ë³´ ì–»ê¸°
 	addrlen = sizeof(clientaddr);
 	getpeername(client_sock, (struct sockaddr *)&clientaddr, &addrlen);
 	inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
 
 	while (1) {
-		// µ¥ÀÌÅÍ ¹Ş±âfdsafdsafdsafdsa
+		// ë°ì´í„° ë°›ê¸°
 		retval = recv(client_sock, buf, BUFSIZE, 0);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");
@@ -33,11 +33,11 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		}
 		else if (retval == 0)	break;
 
-		// ¹ŞÀº µ¥ÀÌÅÍ¸¦ ¼­¹ö¿¡ Ãâ·Â
+		// ë°›ì€ ë°ì´í„°ë¥¼ ì„œë²„ì— ì¶œë ¥
 		buf[retval] = '\0';
 		printf("[TCP/%s:%d] %s\n", addr, ntohs(clientaddr.sin_port), buf);
 
-		// ¹ŞÀº µ¥ÀÌÅÍ¸¦ ÇØ´ç Å¬¶óÀÌ¾ğÆ®¿¡°Ô Àü¼Û
+		// ë°›ì€ ë°ì´í„°ë¥¼ í•´ë‹¹ í´ë¼ì´ì–¸íŠ¸ì—ê²Œ ì „ì†¡
 		for (int i = 0; i < num; i++) {
 			//printf("%d", i);
 			retval = send(sockets[i], buf, retval, 0);
@@ -48,27 +48,27 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		}
 	}
 
-	// ¼ÒÄÏ ´İ±â
+	// ì†Œì¼“ ë‹«ê¸°
 	closesocket(client_sock); num--;
-	printf("[TCP ¼­¹ö] Å¬¶óÀÌ¾ğÆ® Á¾·á: IP ÁÖ¼Ò=%s, Æ÷Æ® ¹øÈ£=%d, ³²Àº »ç¶÷=%d\n", addr, ntohs(clientaddr.sin_port),num);
+	printf("[TCP ì„œë²„] í´ë¼ì´ì–¸íŠ¸ ì¢…ë£Œ: IP ì£¼ì†Œ=%s, í¬íŠ¸ ë²ˆí˜¸=%d, ë‚¨ì€ ì‚¬ëŒ=%d\n", addr, ntohs(clientaddr.sin_port),num);
 	return 0;
 }
 
 int main(int argc, char *argv[])
 {
-	printf("[¼­¹ö ÇÁ·Î±×·¥À» ½ÃÀÛÇÕ´Ï´Ù.]\n");
+	printf("[ì„œë²„ í”„ë¡œê·¸ë¨ì„ ì‹œì‘í•©ë‹ˆë‹¤.]\n");
 	int retval;
 
-	// À©¼Ó ÃÊ±âÈ­
+	// ìœˆì† ì´ˆê¸°í™”
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 		return 1;
-	else printf("  -> [WinsockÀÌ ¼º°øÀûÀ¸·Î ÃÊ±âÈ­µÇ¾ú½À´Ï´Ù.]\n");
+	else printf("  -> [Winsockì´ ì„±ê³µì ìœ¼ë¡œ ì´ˆê¸°í™”ë˜ì—ˆìŠµë‹ˆë‹¤.]\n");
 
-	// ¼ÒÄÏ »ı¼º
+	// ì†Œì¼“ ìƒì„±
 	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (listen_sock == INVALID_SOCKET) err_quit("socket()");
-	else printf("  -> [socket() ÇÔ¼ö°¡ È£ÃâµÇ¾ú½À´Ï´Ù.]\n");
+	else printf("  -> [socket() í•¨ìˆ˜ê°€ í˜¸ì¶œë˜ì—ˆìŠµë‹ˆë‹¤.]\n");
 
 	// bind()
 	struct sockaddr_in serveraddr;
@@ -78,14 +78,14 @@ int main(int argc, char *argv[])
 	serveraddr.sin_port = htons(SERVERPORT);
 	retval = bind(listen_sock, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR) err_quit("bind()");
-	else printf("  -> [bind() ÇÔ¼ö°¡ È£ÃâµÇ¾ú½À´Ï´Ù.]\n");
+	else printf("  -> [bind() í•¨ìˆ˜ê°€ í˜¸ì¶œë˜ì—ˆìŠµë‹ˆë‹¤.]\n");
 
 	// listen()
 	retval = listen(listen_sock, SOMAXCONN);
 	if (retval == SOCKET_ERROR) err_quit("listen()");
-	else printf("  -> [listen() ÇÔ¼ö°¡ È£ÃâµÇ¾ú½À´Ï´Ù.]\n");
+	else printf("  -> [listen() í•¨ìˆ˜ê°€ í˜¸ì¶œë˜ì—ˆìŠµë‹ˆë‹¤.]\n");
 
-	// µ¥ÀÌÅÍ Åë½Å¿¡ »ç¿ëÇÒ º¯¼ö
+	// ë°ì´í„° í†µì‹ ì— ì‚¬ìš©í•  ë³€ìˆ˜
 	SOCKET client_sock;
 	struct sockaddr_in clientaddr;
 	int addrlen;
@@ -93,31 +93,31 @@ int main(int argc, char *argv[])
 
 	while (1) {
 		// accept()
-		printf("  -> [accept() ÇÔ¼ö¸¦ È£ÃâÇÏ¿© »õ·Î¿î Client¸¦ ±â´Ù¸³´Ï´Ù...]\n");
+		printf("  -> [accept() í•¨ìˆ˜ë¥¼ í˜¸ì¶œí•˜ì—¬ ìƒˆë¡œìš´ Clientë¥¼ ê¸°ë‹¤ë¦½ë‹ˆë‹¤...]\n");
 		addrlen = sizeof(clientaddr);
 		client_sock = accept(listen_sock, (struct sockaddr *)&clientaddr, &addrlen);
-		sockets[num++] = client_sock;	// ÇöÀç client_sockÀ» sockets ¹è¿­¿¡ ÀúÀå
+		sockets[num++] = client_sock;	// í˜„ì¬ client_sockì„ sockets ë°°ì—´ì— ì €ì¥
 		if (client_sock == INVALID_SOCKET) {
 			err_display("accept()");
 			break;
 		}
-		else printf("  -> [Client°¡ Á¢¼ÓÀ» ½ÃµµÇÏ¿© accept()°¡ ¿Ï·áµÇ¾ú½À´Ï´Ù.]\n");
+		else printf("  -> [Clientê°€ ì ‘ì†ì„ ì‹œë„í•˜ì—¬ accept()ê°€ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤.]\n");
 
-		// Á¢¼ÓÇÑ Å¬¶óÀÌ¾ğÆ® Á¤º¸ Ãâ·Â
+		// ì ‘ì†í•œ í´ë¼ì´ì–¸íŠ¸ ì •ë³´ ì¶œë ¥
 		char addr[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
-		printf("\n[TCP ¼­¹ö] Å¬¶óÀÌ¾ğÆ® Á¢¼Ó: IP ÁÖ¼Ò=%s, Æ÷Æ® ¹øÈ£=%d, Á¢¼ÓÀÚ ¼ö=%d\n", addr, ntohs(clientaddr.sin_port), num);
+		printf("\n[TCP ì„œë²„] í´ë¼ì´ì–¸íŠ¸ ì ‘ì†: IP ì£¼ì†Œ=%s, í¬íŠ¸ ë²ˆí˜¸=%d, ì ‘ì†ì ìˆ˜=%d\n", addr, ntohs(clientaddr.sin_port), num);
 
-		// ½º·¹µå »ı¼º
+		// ìŠ¤ë ˆë“œ ìƒì„±
 		hThread = CreateThread(NULL, 0, ProcessClient, (LPVOID)client_sock, 0, NULL);
 		if (hThread == NULL) { closesocket(client_sock); num--; }
 		else { CloseHandle(hThread); }
 	}
 
-	// ¼ÒÄÏ ´İ±â
+	// ì†Œì¼“ ë‹«ê¸°
 	closesocket(listen_sock);
 
-	// À©¼Ó Á¾·á
+	// ìœˆì† ì¢…ë£Œ
 	WSACleanup();
 	return 0;
 }

@@ -25,7 +25,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
 
 	while (1) {
-		// 데이터 받기
+		// 데이터 받기fdsafdsafdsafdsa
 		retval = recv(client_sock, buf, BUFSIZE, 0);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");

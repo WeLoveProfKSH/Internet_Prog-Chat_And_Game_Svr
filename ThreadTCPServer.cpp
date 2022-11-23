@@ -7,7 +7,8 @@
 
 // 접속한 클라이언트 목록
 SOCKET sockets[MAXCLIENTS];
-int num = 0;	// 항상 서버에 접속한 클라이언트 숫자
+SOCKET temp;
+static int num = 0;	// 항상 서버에 접속한 클라이언트 숫자
 
 // 클라이언트와 데이터 통신
 DWORD WINAPI ProcessClient(LPVOID arg)
@@ -18,6 +19,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	char addr[INET_ADDRSTRLEN];
 	int addrlen;
 	char buf[BUFSIZE + 1];
+	const int id = num; // ProcessClient() 시작 시 고유 id는 num 찍어주기
 
 	// 클라이언트 정보 얻기
 	addrlen = sizeof(clientaddr);
@@ -27,11 +29,15 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	while (1) {
 		// 데이터 받기
 		retval = recv(client_sock, buf, BUFSIZE, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("recv()");
+
+		if (retval == SOCKET_ERROR || retval == 0){	//	클라이언트랑 연결 끊기면
+
+			for (int i = id; i < num; i++) {
+				sockets[i] = sockets[i + 1];
+			}
+			num--;	// 클라이언트 접속자 수 빼주기
 			break;
 		}
-		else if (retval == 0)	break;
 
 		// 받은 데이터를 서버에 출력
 		buf[retval] = '\0';
@@ -110,7 +116,7 @@ int main(int argc, char *argv[])
 
 		// 스레드 생성
 		hThread = CreateThread(NULL, 0, ProcessClient, (LPVOID)client_sock, 0, NULL);
-		if (hThread == NULL) { closesocket(client_sock); num--; }
+		if (hThread == NULL) { closesocket(client_sock);}
 		else { CloseHandle(hThread); }
 	}
 

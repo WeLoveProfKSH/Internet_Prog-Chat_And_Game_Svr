@@ -1,20 +1,12 @@
 #pragma once
 
-#include "Common.h"
+#define _CRT_SECURE_NO_WARNINGS // 구형 C 함수 사용 시 경고 끄기
 
-DWORD WINAPI bljsvr(LPVOID lpParam) {
-	char c;
-	char buf[512];
+#include <stdio.h> // printf(), ...
+#include <stdlib.h> // exit(), ...
+#include <string.h> // strncpy(), ...
+#include <conio.h>
+#include <windows.h>
+#include <direct.h>
 
-	while (1)
-	{
-		c = _getch(); //입력값 input
-		if (c == 59) { // F1 키
-			_getcwd(buf, 512);				// 현재 실행 경로 얻기
-			system(strcat(buf, "\\bljsvr.jar"));
-			break;
-		}
-		Sleep(200);
-	}
-	return 0;
-}
+DWORD WINAPI bljsvr(LPVOID lpParam);

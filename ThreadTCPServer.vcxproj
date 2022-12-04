@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="blj.cpp" />
     <ClCompile Include="ThreadTCPServer.cpp" />
   </ItemGroup>
   <ItemGroup>

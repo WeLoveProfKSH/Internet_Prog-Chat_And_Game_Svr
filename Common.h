@@ -10,9 +10,6 @@
 #include <stdio.h> // printf(), ...
 #include <stdlib.h> // exit(), ...
 #include <string.h> // strncpy(), ...
-#include <conio.h>
-#include <windows.h>
-#include <direct.h>
 
 #pragma comment(lib, "ws2_32") // ws2_32.lib ¸µÅ©
 

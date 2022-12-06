@@ -147,11 +147,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="blj.cpp" />
     <ClCompile Include="ThreadTCPServer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="blj.h" />
     <ClInclude Include="Common.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
